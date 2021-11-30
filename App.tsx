@@ -1,0 +1,24 @@
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * Generated with the TypeScript template
+ * https://github.com/react-native-community/react-native-template-typescript
+ *
+ * @format
+ */
+
+import React from 'react';
+import Home from "./screens/Home/Home" ; 
+import Toast from "react-native-toast-message" ;
+const App = () => {
+  return (
+    <>
+    <Home />
+    <Toast />
+    </>
+  );
+};
+
+
+export default App;
