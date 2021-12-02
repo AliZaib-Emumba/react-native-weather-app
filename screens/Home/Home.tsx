@@ -29,21 +29,17 @@ const Home: React.FC = () => {
         dispatch({ type: "setEnabled", enabled: !state.isEnabled });
     }
 
-    const filterData = (list: ListData[]) => {
-        let returnData = getAverageData(list) ;
-        dispatch({type:"setFilterData" , data: returnData , lineData:getFormattedLineData(returnData)})
-    }
-
     const handleCityNameSubmit = (values: string) => {
         dispatch({ type: "setLoading", loading: true })
         getDatawithCityName(values)
             .then(res => {
-                dispatch({type:"setResponse" , city: res[0].city.name, loading: false , celsius: getAverageData(res[0].list), fahrenheit: getAverageData(res[1].list), currentUnit: state.isEnabled ? "metric" : "imperial" })
+                let celsiusList  = getAverageData(res[0].list) ;
+                let fahrenheitList  = getAverageData(res[1].list) ;
                 if (state.isEnabled) {
-                    filterData(res[0].list)
+                    dispatch({type:"setResponse" ,data: celsiusList , lineData:getFormattedLineData(celsiusList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
                 }
                 else {
-                    filterData(res[1].list)
+                    dispatch({type:"setResponse" ,data: fahrenheitList , lineData:getFormattedLineData(fahrenheitList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
                 }
             })
             .catch(err => {
@@ -63,12 +59,13 @@ const Home: React.FC = () => {
         getDatawithZipCode(values.input)
             .then(res => {
                 formikRef.current?.resetForm({ input: "" });
-                dispatch({type:"setResponse" , city: res[0].city.name, loading: false , celsius: getAverageData(res[0].list), fahrenheit: getAverageData(res[1].list), currentUnit: state.isEnabled ? "metric" : "imperial" })
+                let celsiusList  = getAverageData(res[0].list) ;
+                let fahrenheitList  = getAverageData(res[1].list) ;
                 if (state.isEnabled) {
-                    filterData(res[0].list)
+                    dispatch({type:"setResponse" ,data: celsiusList , lineData:getFormattedLineData(celsiusList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
                 }
                 else {
-                    filterData(res[1].list)
+                    dispatch({type:"setResponse" ,data: fahrenheitList , lineData:getFormattedLineData(fahrenheitList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
                 }
             })
             .catch(err => {
@@ -77,6 +74,7 @@ const Home: React.FC = () => {
                     showToast("No such Zip code exist");
                 }
                 else {
+                    console.log(err)
                     showToast("Something went wrong, try again");
                 }
 

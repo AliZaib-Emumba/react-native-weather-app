@@ -9,7 +9,7 @@ type ListData = {
     visibility: number,
     weather: { id: number, main: string, description: string, icon: string }[],
     wind: { speed: number, deg: number, gust: number },
-    main: { feels_like: string, grnd_level: string, humidity: string, pressure: string, sea_level: string, temp: string, temp_kf: string, temp_max: string, temp_min: string }
+    main: { feels_like: number, grnd_level: string, humidity: string, pressure: string, sea_level: string, temp: number, temp_kf: string, temp_max: string, temp_min: string }
 }
 
 type City = {

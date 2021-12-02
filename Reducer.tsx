@@ -7,7 +7,7 @@ type ListData = {
     visibility: number,
     weather: { id: number, main: string, description: string, icon: string }[],
     wind: { speed: number, deg: number, gust: number },
-    main: { feels_like: string, grnd_level: string, humidity: string, pressure: string, sea_level: string, temp: string, temp_kf: string, temp_max: string, temp_min: string }
+    main: { feels_like: number, grnd_level: string, humidity: string, pressure: string, sea_level: string, temp: number, temp_kf: string, temp_max: string, temp_min: string }
 }
 export type LineData = {
     labels: string[],
@@ -61,7 +61,7 @@ export function reducer(state: InitialState,action:any):InitialState{
         case "setFilterData":
             return {...state , data:action.data , lineData: action.lineData}
         case "setResponse":
-            return {...state , city:action.city , isLoading: action.loading , fahrenheitData:action.fahrenheit , celsiusData: action.celsius , currentUnit:action.currentUnit}
+            return {...state ,data:action.data, lineData:action.lineData, city:action.city, isLoading: action.loading , fahrenheitData:action.fahrenheit , celsiusData: action.celsius , currentUnit:action.currentUnit}
         case "changeUnit":
             return {...state , data:action.data , lineData: action.lineData, currentUnit: action.currentUnit, isEnabled: action.enabled}
         default: 

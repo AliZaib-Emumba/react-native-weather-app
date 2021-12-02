@@ -1,11 +1,10 @@
-import Toast from "react-native-toast-message" ; 
+import Toast from "react-native-toast-message";
 
-export const showToast = (message:string):void => {
-    console.log("Incoming message " + message );
-        Toast.show({
+export const showToast = (message: string): void => {
+    Toast.show({
         type: 'error',
         text1: '❌  Error',
-        text2:  message,
+        text2: message,
         position: "bottom"
     })
 }
@@ -13,15 +12,13 @@ export const showToast = (message:string):void => {
 //  return the date format
 export function formatDate(date: string | undefined): string | undefined {
     if (date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate()
-
+        let d = new Date(date.substring(0,10)),
+         month = (d.getMonth() + 1)+'',
+         day = d.getDate()+''
         if (month.length < 2)
             month = '0' + month;
         if (day.length < 2)
             day = '0' + day;
-
         return [day, month].join('-');
     }
 }
@@ -63,7 +60,7 @@ type ListData = {
     visibility: number,
     weather: { id: number, main: string, description: string, icon: string }[],
     wind: { speed: number, deg: number, gust: number },
-    main: { feels_like: string, grnd_level: string, humidity: string, pressure: string, sea_level: string, temp: string, temp_kf: string, temp_max: string, temp_min: string }
+    main: { feels_like: number, grnd_level: string, humidity: string, pressure: string, sea_level: string, temp: number, temp_kf: string, temp_max: string, temp_min: string }
 }
 type LineData = {
     labels: string[],
@@ -83,37 +80,64 @@ export function getFormattedLineData(list: ListData[]): LineData {
         datasets: [{ data: data, strokeWidth: 2 }]
     }
 }
-const convertToCelsius = (temp: string):string => {
-    let val =  (.5556)*(+temp-32);
-    return (Math.round((val + Number.EPSILON) * 100) / 100)+"";
+const convertToCelsius = (temp: number): number => {
+    let val = (.5556) * (+temp - 32);
+    return (Math.round((val + Number.EPSILON) * 100) / 100);
 }
-const convertToFahrenheit = (temp: string):string => {
-    let val =  (+temp * 9/5) + 32;
-    return (Math.round((val + Number.EPSILON) * 100) / 100)+"";
+const convertToFahrenheit = (temp: number): number => {
+    let val = (+temp * 9 / 5) + 32;
+    return (Math.round((val + Number.EPSILON) * 100) / 100);
 }
 
 export function getListInCelsius(list: ListData[]) {
     let returnList = list;
-    returnList.forEach((item , index) => {
-        console.log("Index is here" , index)
-        returnList[index].main.temp =  convertToCelsius(item.main.temp) ;
+    returnList.forEach((item, index) => {
+        returnList[index].main.temp = convertToCelsius(item.main.temp);
         returnList[index].main.feels_like = convertToCelsius(item.main.feels_like);
     });
-    return  list ;
+    return list;
 }
 export function getListInFahrnheit(list: ListData[]) {
     let returnList = list;
-    returnList.map((item , index) => {
-        console.log("Index is here" , index)
-        returnList[index].main.temp =  convertToFahrenheit(item.main.temp) ;
+    returnList.map((item, index) => {
+        returnList[index].main.temp = convertToFahrenheit(item.main.temp);
         returnList[index].main.feels_like = convertToFahrenheit(item.main.feels_like);
     })
 
-    return  returnList ;
+    return returnList;
 }
 
+export const getAverageData = (list: ListData[]) => {
+    let setsList: ListData[][] = [];
+    let count = 1
+    list.map((item, index) => {
+        if (count < list.length && item.dt_txt.substring(0, 10) === list[count].dt_txt.substring(0, 10)) {
+            count++;
+        }
+        else {
+            setsList.push(list.slice(0, count));
+            list = list.filter((item, i: number) => i >= count);
+            count = 1;
+        }
+    })
+    return setsList.map(item => {
+        let sum: ListData;
+        sum = item.reduce(function (prev: ListData, current: ListData) {
+            let returnItem = prev;
+            returnItem.main.temp = prev.main.temp + current.main.temp;
+            returnItem.main.feels_like = prev.main.feels_like + current.main.feels_like;
+            return returnItem;
+        })
+        sum.main.temp = Math.round(((sum.main.temp / item.length) + Number.EPSILON) * 100) / 100;
+        sum.main.feels_like = Math.round(((sum.main.feels_like / item.length) + Number.EPSILON) * 100) / 100;
+        let average = sum;
+        return average;
+    })
+}
 
-export const  getAverageData = (list: ListData[]): ListData[] => {
+/* export const  getAverageData = (list: ListData[]): ListData[] => {
+    console.log("Original list is here", list) ;
+    getAverageCheck(list) ;
     let setsList: ListData[][] = [];
     let FinaList: ListData[] = [];
     let iterableList: ListData[] = list;
@@ -151,4 +175,4 @@ export const  getAverageData = (list: ListData[]): ListData[] => {
     // console.log("Final List is here", FinaList);
     return FinaList;
 
-}
+}  */
