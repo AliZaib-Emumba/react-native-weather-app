@@ -8,68 +8,70 @@ import { getFormattedLineData, getAverageData, showToast } from "../../utils";
 import { LineChart } from "react-native-chart-kit";
 import { getDatawithCityName, getDatawithZipCode } from "../../actions";
 import { reducer, initialState } from "../../Reducer";
+import { getDefaultMiddleware } from "@reduxjs/toolkit";
 import { zipCodeValdiationSchema, cityNameValdiationSchema } from "../../validationSchema/validation";
 import { Options, FormValues, ListData, LineData } from "./types";
 import RenderItem from "./components/ListCard";
 import { Picker } from "@react-native-picker/picker";
 import { debounce } from "lodash";
-
+import { useDispatch , useSelector } from "react-redux";
+import { selectData , setLoading, setResponse , changeTempUnit, setEnabled , fetchByZipCode ,fetchByCityName } from "../../redux/dataSlice";
 const Home: React.FC = () => {
     const [value, setValue] = useState("zip")
-    const [state, dispatch] = useReducer(reducer, initialState);
     const [input, setInput] = useState("");
     const formikRef = useRef<any>();
-    
+    const dispatch = useDispatch() ;
+    const selector = useSelector(selectData)
+
     useEffect(() => {
         formikRef.current?.resetForm();
     }, [value]);
-    
-    
+
     const toggleSwitch = () => {
-        dispatch({ type: "setEnabled", enabled: !state.isEnabled });
+        dispatch(setEnabled({enabled: !selector.isEnabled }));
     }
 
     const handleCityNameSubmit = (values: string) => {
-        dispatch({ type: "setLoading", loading: true })
+        dispatch(fetchByCityName(values))
+        /* dispatch(setLoading({loading: true }))
         getDatawithCityName(values)
             .then(res => {
                 let celsiusList  = getAverageData(res[0].list) ;
                 let fahrenheitList  = getAverageData(res[1].list) ;
-                if (state.isEnabled) {
-                    dispatch({type:"setResponse" ,data: celsiusList , lineData:getFormattedLineData(celsiusList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
+                if (selector.isEnabled) {
+                    dispatch(setResponse({data: celsiusList , lineData:getFormattedLineData(celsiusList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: selector.isEnabled ? "metric" : "imperial" }))
                 }
                 else {
-                    dispatch({type:"setResponse" ,data: fahrenheitList , lineData:getFormattedLineData(fahrenheitList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
+                    dispatch(setResponse({data: fahrenheitList , lineData:getFormattedLineData(fahrenheitList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: selector.isEnabled ? "metric" : "imperial" }))
                 }
             })
             .catch(err => {
-                dispatch({ type: "setLoading", loading: false })
+                dispatch(setLoading({loading: false }))
                 if (err.response?.status === 404) {
                     showToast("No such city name found");
                 }
                 else {
                     showToast("Something went wrong, try again");
                 }
-            })
+            }) */
     }
 
     const handleZipCodeSubmit = (values: FormValues) => {
         Keyboard.dismiss();
-        dispatch({ type: "setLoading", loading: true })
-        getDatawithZipCode(values.input)
+        dispatch(fetchByZipCode(values.input));
+        /* getDatawithZipCode(values.input)
             .then(res => {
-                formikRef.current?.resetForm({ input: "" });
                 let celsiusList  = getAverageData(res[0].list) ;
                 let fahrenheitList  = getAverageData(res[1].list) ;
-                if (state.isEnabled) {
-                    dispatch({type:"setResponse" ,data: celsiusList , lineData:getFormattedLineData(celsiusList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
+                if (selector.isEnabled) {
+                    dispatch(setResponse({data: celsiusList , lineData:getFormattedLineData(celsiusList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: selector.isEnabled ? "metric" : "imperial" }))
                 }
                 else {
-                    dispatch({type:"setResponse" ,data: fahrenheitList , lineData:getFormattedLineData(fahrenheitList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: state.isEnabled ? "metric" : "imperial" })
+                    dispatch(setResponse({data: fahrenheitList , lineData:getFormattedLineData(fahrenheitList), city: res[0].city.name, loading: false , celsius: celsiusList, fahrenheit: fahrenheitList, currentUnit: selector.isEnabled ? "metric" : "imperial" }))
                 }
             })
             .catch(err => {
-                dispatch({ type: "setLoading", loading: false })
+                dispatch(setLoading({loading: false }))
                 if (err.response?.status === 404) {
                     showToast("No such Zip code exist");
                 }
@@ -78,18 +80,18 @@ const Home: React.FC = () => {
                     showToast("Something went wrong, try again");
                 }
 
-            })
+            }) */
     }
 
     const changeUnit = (): void => {
         let listData: ListData[]
-        if (state.currentUnit === "imperial") {
-            listData = state.celsiusData;
-            dispatch({ type: "changeUnit", data: listData, lineData: getFormattedLineData(listData), currentUnit: 'metric', enabled: true })
+        if (selector.currentUnit === "imperial") {
+            listData = selector.celsiusData;
+            dispatch(changeTempUnit({data: listData, lineData: getFormattedLineData(listData), currentUnit: 'metric', enabled: true }))
         }
         else {
-            listData = state.fahrenheitData;
-            dispatch({ type: "changeUnit", data: listData, lineData: getFormattedLineData(listData), currentUnit: 'imperial', enabled: false })
+            listData = selector.fahrenheitData;
+            dispatch(changeTempUnit({data: listData, lineData: getFormattedLineData(listData), currentUnit: 'imperial', enabled: false }))
         }
     }
 
@@ -125,9 +127,9 @@ const Home: React.FC = () => {
                             <SwitchLabel>Fahrenheit</SwitchLabel>
                             <Switch
                                 trackColor={{ false: "#889BB8", true: "#889BB8" }}
-                                thumbColor={state.isEnabled ? "#D0CFCF" : "#D0CFCF"}
+                                thumbColor={selector.isEnabled ? "#D0CFCF" : "#D0CFCF"}
                                 ios_backgroundColor="#3e3e3e"
-                                value={state.isEnabled}
+                                value={selector.isEnabled}
                                 onValueChange={toggleSwitch}
                             />
                             <SwitchLabel>Celsius</SwitchLabel>
@@ -186,31 +188,31 @@ const Home: React.FC = () => {
                     </SelectBox>
                 </Form>
             </SelectContainer>
-            <If condition={state.isLoading}>
+            <If condition={selector.isLoading}>
                 <Then>
-                    <ActivityIndicator size="large" animating={state.isLoading} />
+                    <ActivityIndicator size="large" animating={selector.isLoading} />
                 </Then>
             </If>
-            <If condition={state.data.length > 0}>
+            <If condition={selector.data.length > 0}>
                 <Then>
                     <ScrollView>
                         <City>
-                            <CityLabel>Area: <CityName>{state.city}</CityName></CityLabel>
+                            <CityLabel>Area: <CityName>{selector.city}</CityName></CityLabel>
                         </City>
                         <ButtonView>
-                            <Button activeOpacity={0.7} onPress={changeUnit}><Text style={{ color: "white" }}>Convert to {state.currentUnit === "imperial" ? "Celsius" : "Fahrenheit"}</Text></Button>
+                            <Button activeOpacity={0.7} onPress={changeUnit}><Text style={{ color: "white" }}>Convert to {selector.currentUnit === "imperial" ? "Celsius" : "Fahrenheit"}</Text></Button>
                         </ButtonView>
                         <CardView>
-                            <FlatList horizontal={true} data={state.data} renderItem={({ item }) => <RenderItem item={item} currentUnit={state.currentUnit} />} />
+                            <FlatList horizontal={true} data={selector.data} renderItem={({ item }) => <RenderItem item={item} currentUnit={selector.currentUnit} />} />
                         </CardView>
                         <ChartView>
-                            <If condition={!!state.lineData}>
+                            <If condition={!!selector.lineData}>
                                 <Then>
                                     <LineChart
-                                        data={state.lineData}
+                                        data={selector.lineData}
                                         width={Dimensions.get('window').width - 20} // from react-native
                                         height={220}
-                                        yAxisSuffix={state.currentUnit === "metric" ? " °C" : " °F"}
+                                        yAxisSuffix={selector.currentUnit === "metric" ? " °C" : " °F"}
                                         chartConfig={{
                                             backgroundGradientFrom: '#889BB8',
                                             backgroundGradientTo: '#889BB8',

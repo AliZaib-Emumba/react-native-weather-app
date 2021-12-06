@@ -108,6 +108,53 @@ export function getListInFahrnheit(list: ListData[]) {
 }
 
 export const getAverageData = (list: ListData[]) => {
+    let returnArray: ListData[] = [];
+    let startIndex = 0;
+    list.map((item, index) => {
+        if (list[startIndex].dt_txt.substring(0, 10) !== item.dt_txt.substring(0, 10)) {
+            let sum: ListData = list.slice(startIndex, index).reduce(function (prev, current): any {
+                let returnItem = prev;
+                returnItem.main.temp = prev.main.temp + current.main.temp;
+                returnItem.main.feels_like = prev.main.feels_like + current.main.feels_like;
+                return returnItem;
+            });
+            let length = list.slice(startIndex, index).length
+            sum.main.temp = Math.round(((sum.main.temp / length) + Number.EPSILON) * 100) / 100;
+            sum.main.feels_like = Math.round(((sum.main.feels_like / length) + Number.EPSILON) * 100) / 100;
+            startIndex = index;
+            returnArray.push(sum);
+        }
+    }) ; 
+    return returnArray
+}
+
+/* export const getNewAverage = (list: ListData[]) => {
+    let setsList: ListData[][] = [];
+    let index = 0 ; 
+    let item = list.reduce((prev,curr ,ind)=>{
+        console.log("Prev is" , prev ) ;
+        console.log("And current is " , curr) ;
+        if(prev.dt_txt.substring(0,10) !== curr.dt_txt.substring(0,10)){
+            console.log("first array closed at index" , index  + "to" , ind) ;
+            setsList.push(list.slice(index,ind)) ;
+            index = ind
+        }
+        else if ((prev.dt_txt.substring(0,10) === curr.dt_txt.substring(0,10)) && ind===list.length-1){
+            console.log("first array closed at index" , index  + "to" , ind) ;
+            setsList.push(list.slice(index,list.length)) ;
+            index = ind
+        }
+        return curr ;
+    });
+
+    console.log("Sets List is here" ,setsList) ;
+    console.log("Original list is here" , list) ;
+    
+    
+} */
+
+/* export const getAverageData = (list: ListData[]) => {
+    getNewAverage(JSON.parse(JSON.stringify(list))) ;
     let setsList: ListData[][] = [];
     let count = 1
     list.map((item, index) => {
@@ -133,7 +180,7 @@ export const getAverageData = (list: ListData[]) => {
         let average = sum;
         return average;
     })
-}
+} */
 
 /* export const  getAverageData = (list: ListData[]): ListData[] => {
     console.log("Original list is here", list) ;

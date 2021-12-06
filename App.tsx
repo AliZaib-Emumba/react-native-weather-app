@@ -9,14 +9,16 @@
  */
 
 import React from 'react';
-import Home from "./screens/Home/Home" ; 
-import Toast from "react-native-toast-message" ;
+import Home from "./screens/Home/Home";
+import Toast from "react-native-toast-message";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 const App = () => {
   return (
-    <>
-    <Home />
-    <Toast />
-    </>
+    <Provider store={store}>
+      <Home />
+      <Toast />
+    </Provider>
   );
 };
 

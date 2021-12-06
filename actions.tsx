@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import {showToast} from "./utils/index" ; 
 type ListData = {
     clouds: { all: number },
     dt: number,
@@ -39,8 +39,8 @@ type Response = {
 }
 
 export const getDatawithZipCode = (zipcode: string): Promise<Response[]> => {
-    const celsius = axiosClient.get<Response>(`?zip=${zipcode + ",pk"}&units=metric`).then(res => res.data).catch(err => { throw err });
-    const fahrenheit = axiosClient.get<Response>(`?zip=${zipcode + ",pk"}&units=imperial`).then(res => res.data).catch(err => { throw err });
+    const celsius = axiosClient.get<Response>(`?zip=${zipcode + ",pk"}&units=metric`).then(res => res.data).catch(err => { throw err.response.status });
+    const fahrenheit = axiosClient.get<Response>(`?zip=${zipcode + ",pk"}&units=imperial`).then(res => res.data).catch(err => { throw err.response.status });
     return Promise.all([celsius, fahrenheit])
         .then(values => values)
         .catch(err => { throw err })
@@ -48,8 +48,8 @@ export const getDatawithZipCode = (zipcode: string): Promise<Response[]> => {
 }
 
 export const getDatawithCityName = (city: string): Promise<Response[]> => {
-    const celsius = axiosClient.get<Response>(`?q=${city}&units=metric`).then(res => res.data).catch(err => { throw err });;
-    const fahrenheit = axiosClient.get<Response>(`?q=${city}&units=imperial`).then(res => res.data).catch(err => { throw err });
+    const celsius = axiosClient.get<Response>(`?q=${city}&units=metric`).then(res => res.data).catch(err => { throw err.response.status });;
+    const fahrenheit = axiosClient.get<Response>(`?q=${city}&units=imperial`).then(res => res.data).catch(err => { throw err.response.status });
     return Promise.all([celsius, fahrenheit])
         .then(values => values)
         .catch(err => { throw err })
