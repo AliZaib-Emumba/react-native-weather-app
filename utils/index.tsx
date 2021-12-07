@@ -1,5 +1,6 @@
 import Toast from "react-native-toast-message";
-
+import { Platform } from "react-native";
+import { array } from "yup/lib/locale";
 export const showToast = (message: string): void => {
     Toast.show({
         type: 'error',
@@ -108,6 +109,7 @@ export function getListInFahrnheit(list: ListData[]) {
 }
 
 export const getAverageData = (list: ListData[]) => {
+    console.log(Platform.OS) ;
     let returnArray: ListData[] = [];
     let startIndex = 0;
     list.map((item, index) => {
@@ -119,6 +121,20 @@ export const getAverageData = (list: ListData[]) => {
                 return returnItem;
             });
             let length = list.slice(startIndex, index).length
+            sum.main.temp = Math.round(((sum.main.temp / length) + Number.EPSILON) * 100) / 100;
+            sum.main.feels_like = Math.round(((sum.main.feels_like / length) + Number.EPSILON) * 100) / 100;
+            startIndex = index;
+            returnArray.push(sum);
+        }
+        else if((list[startIndex].dt_txt.substring(0, 10) === item.dt_txt.substring(0, 10)) && index+1 === list.length){
+            console.log("Starting index is " , startIndex , "and last index is" , index) ;
+            let sum: ListData = list.slice(startIndex, list.length+1).reduce(function (prev, current): any {
+                let returnItem = prev;
+                returnItem.main.temp = prev.main.temp + current.main.temp;
+                returnItem.main.feels_like = prev.main.feels_like + current.main.feels_like;
+                return returnItem;
+            });
+            let length = list.slice(startIndex, index+1).length
             sum.main.temp = Math.round(((sum.main.temp / length) + Number.EPSILON) * 100) / 100;
             sum.main.feels_like = Math.round(((sum.main.feels_like / length) + Number.EPSILON) * 100) / 100;
             startIndex = index;

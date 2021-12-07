@@ -72,119 +72,133 @@ export const dataSlice = createSlice({
     initialState,
     reducers: {
         setOpen: (state, action) => {
-            state.open = action.payload.open
+            return { ...state, open: action.payload.open }
         },
         setData: (state, action) => {
-            state.data = action.payload.data
+            return { ...state, data: action.payload.data }
         },
         setTemperatureData: (state, action) => {
-            state.fahrenheitData = action.payload.fahrenheit;
-            state.celsiusData = action.payload.celsius
+            return { ...state, fahrenheitData: action.payload.fahrenheit, celsiusData: action.payload.celsius };
         },
         setUnit: (state, action) => {
-            state.currentUnit = action.payload.currentUnit
+            return { ...state, currentUnit: action.payload.currentUnit }
         },
         setCity: (state, action) => {
-            state.city = action.payload.city
+            return { ...state, city: action.payload.city }
         },
         setEnabled: (state, action) => {
-            state.isEnabled = action.payload.enabled;
+            return { ...state, isEnabled: action.payload.enabled }
         },
         setLineData: (state, action) => {
-            state.lineData = action.payload.data
+            return { ...state, lineData: action.payload.data }
         },
         setLoading: (state, action) => {
-            state.isLoading = action.payload.loading
+            return { ...state, isLoading: action.payload.loading }
         },
         setResponse: (state, action) => {
-            state.data = action.payload.data;
-            state.lineData = action.payload.lineData;
-            state.city = action.payload.city;
-            state.isLoading = action.payload.loading;
-            state.fahrenheitData = action.payload.fahrenheit;
-            state.celsiusData = action.payload.celsius;
-            state.currentUnit = action.payload.currentUnit
+            return {
+                ...state,
+                data: action.payload.data,
+                lineData: action.payload.lineData,
+                city: action.payload.city,
+                isLoading: action.payload.loading,
+                fahrenheitData: action.payload.fahrenheit,
+                celsiusData: action.payload.celsius,
+                currentUnit: action.payload.currentUnit
+            }
         },
         changeTempUnit: (state, action) => {
-            state.data = action.payload.data;
-            state.lineData = action.payload.lineData;
-            state.currentUnit = action.payload.currentUnit;
-            state.isEnabled = action.payload.enabled
+            return {
+                ...state,
+                data: action.payload.data,
+                lineData: action.payload.lineData,
+                currentUnit: action.payload.currentUnit,
+                isEnabled: action.payload.enabled
+            }
         }
     },
-     // middleware 
+    // middleware 
     extraReducers: (builder) => {
         builder.addCase(fetchByZipCode.fulfilled, (state, action) => {
             let response = action.payload;
             let celsiusList = getAverageData(response[0].list);
             let fahrenheiList = getAverageData(response[1].list);
             if (state.isEnabled) {
-                state.data = celsiusList;
-                state.lineData = getFormattedLineData(celsiusList);
-                state.city = response[0].city.name;
-                state.isLoading = false;
-                state.celsiusData = celsiusList;
-                state.fahrenheitData = fahrenheiList;
-                state.currentUnit = state.isEnabled ? "metric" : "imperial"
+                return {
+                    ...state, data: celsiusList,
+                    lineData: getFormattedLineData(celsiusList),
+                    city: response[0].city.name,
+                    isLoading: false,
+                    celsiusData: celsiusList,
+                    fahrenheitData: fahrenheiList,
+                    currentUnit: state.isEnabled ? "metric" : "imperial"
+                }
             }
             else {
-                state.data = fahrenheiList;
-                state.lineData = getFormattedLineData(fahrenheiList);
-                state.city = response[0].city.name;
-                state.isLoading = false;
-                state.celsiusData = celsiusList;
-                state.fahrenheitData = fahrenheiList;
-                state.currentUnit = state.isEnabled ? "metric" : "imperial"
+                return {
+                    ...state,
+                    data: fahrenheiList,
+                    lineData: getFormattedLineData(fahrenheiList),
+                    city: response[0].city.name,
+                    isLoading: false,
+                    celsiusData: celsiusList,
+                    fahrenheitData: fahrenheiList,
+                    currentUnit: state.isEnabled ? "metric" : "imperial"
+                }
             }
         }),
             builder.addCase(fetchByZipCode.rejected, (state, action) => {
                 if (action.error.message === "404") {
-                    state.isLoading = false;
                     showToast("No such zipcode exist");
                 }
                 else {
-                    state.isLoading = false;
                     showToast("Something went wrong, try agian")
                 }
+                return { ...state, isLoading: false }
             }),
             builder.addCase(fetchByZipCode.pending, (state, action) => {
-                state.isLoading = true;
+                return { ...state, isLoading: true }
+
             }),
             builder.addCase(fetchByCityName.pending, (state, action) => {
-                state.isLoading = true;
+                return { ...state, isLoading: true }
             }),
             builder.addCase(fetchByCityName.fulfilled, (state, action) => {
                 let response = action.payload;
                 let celsiusList = getAverageData(response[0].list);
                 let fahrenheiList = getAverageData(response[1].list);
                 if (state.isEnabled) {
-                    state.data = celsiusList;
-                    state.lineData = getFormattedLineData(celsiusList);
-                    state.city = response[0].city.name;
-                    state.isLoading = false;
-                    state.celsiusData = celsiusList;
-                    state.fahrenheitData = fahrenheiList;
-                    state.currentUnit = state.isEnabled ? "metric" : "imperial"
+                    return {
+                        ...state, data: celsiusList
+                        , lineData: getFormattedLineData(celsiusList),
+                        city: response[0].city.name,
+                        isLoading: false,
+                        celsiusData: celsiusList,
+                        fahrenheitData: fahrenheiList,
+                        currentUnit: state.isEnabled ? "metric" : "imperial"
+                    }
                 }
                 else {
-                    state.data = fahrenheiList;
-                    state.lineData = getFormattedLineData(fahrenheiList);
-                    state.city = response[0].city.name;
-                    state.isLoading = false;
-                    state.celsiusData = celsiusList;
-                    state.fahrenheitData = fahrenheiList;
-                    state.currentUnit = state.isEnabled ? "metric" : "imperial"
+                    return {
+                        ...state,
+                        data: fahrenheiList,
+                        lineData: getFormattedLineData(fahrenheiList),
+                        city: response[0].city.name,
+                        isLoading: false,
+                        celsiusData: celsiusList,
+                        fahrenheitData: fahrenheiList,
+                        currentUnit: state.isEnabled ? "metric" : "imperial"
+                    }
                 }
             }),
             builder.addCase(fetchByCityName.rejected, (state, action) => {
                 if (action.error.message === "404") {
-                    state.isLoading = false;
                     showToast("No such city name found");
                 }
                 else {
-                    state.isLoading = false;
                     showToast("Something went wrong, try agian")
                 }
+                return { ...state, isLoading: false }
             })
     }
 });
